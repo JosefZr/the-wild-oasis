@@ -1,4 +1,12 @@
+/* eslint-disable no-unused-vars */
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
+import { IoHomeOutline } from "react-icons/io5";
+import { CiCalendar } from "react-icons/ci";
+import { HiOutlineHomeModern } from "react-icons/hi2";
+import { HiOutlineUsers } from "react-icons/hi2";
+import { HiOutlineCog6Tooth } from "react-icons/hi2";
+
 
 const NavList = styled.ul`
   display: flex;
@@ -6,7 +14,7 @@ const NavList = styled.ul`
   gap: 0.8rem;
 `;
 
-const Link = styled.a`
+const StyledNavLink = styled(NavLink)`
   &:link,
   &:visited {
     display: flex;
@@ -44,3 +52,45 @@ const Link = styled.a`
     color: var(--color-brand-600);
   }
 `;
+
+function MainNav(){
+  return (
+    <nav>
+      <NavList>
+        <li>
+          <StyledNavLink to='/dashboard'>
+          <IoHomeOutline />
+            home
+          </StyledNavLink> 
+        </li> {/* we use navlinks to prevent the page from reloawding avery time we click on a link */}
+        <li>
+          <StyledNavLink to='/bookings'>
+            <CiCalendar />
+            booking
+          </StyledNavLink> 
+        </li>
+        <li>
+          <StyledNavLink to='/cabins'>
+            <HiOutlineHomeModern />
+            Cabins
+          </StyledNavLink> 
+        </li>
+        <li>
+          <StyledNavLink to='/users'>
+          <HiOutlineUsers />
+            Users
+          </StyledNavLink> 
+        </li>
+        <li>
+          <StyledNavLink to='/settings'>
+            <HiOutlineCog6Tooth />
+            Settings
+          </StyledNavLink> 
+        </li>
+
+      </NavList>
+    </nav>
+  );
+}
+
+export default MainNav;
