@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import styled, { css } from "styled-components";
 
 const sizes = {
@@ -48,19 +47,19 @@ const variations = {
     }
   `,
 };
-const Button= styled.button`
+
+const Button = styled.button`
+  border: none;
   border-radius: var(--border-radius-sm);
-  background-color: var(--color-brand-600);
   box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  ${(props) =>sizes[props.size]}
-  ${(props)=>sizes[props.variations]}
-  /* &:hover{
-    background-color: var(--color-brand-700);
-  } */
-`
-Button.defaultProps={
-  variation:"promary",
-  size:"md",
-}
+
+  ${(props) => sizes[props.size]}
+  ${(props) => variations[props.variation]}
+`;
+
+Button.defaultProps = {
+  variation: "primary",
+  size: "medium",
+};
+
 export default Button;
