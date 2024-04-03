@@ -1,105 +1,158 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
+import { useForm } from "react-hook-form";
+
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
-import { useForm } from "react-hook-form";
 import FormRow from "../../ui/FormRow";
+
 import { useCreateCabin } from "./useCreateCabin";
 import { useUpdateCabin } from "./useUpdateCabin";
-import { useQueryClient } from "@tanstack/react-query";
 
-function CreateCabinForm({cabinToEdit={}}){
-  const { isEditing, editCabin} = useUpdateCabin();
-  const {isCreating, createCabin}= useCreateCabin();
+function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
+  const { isCreating, createCabin } = useCreateCabin();
+  const { isEditing, editCabin } = useUpdateCabin();
+  const isWorking = isCreating || isEditing;
 
-  const isWorking = isCreating || isEditing
-
-  const{id:editId, ...editValues}= cabinToEdit;
+  const { id: editId, ...editValues } = cabinToEdit;
   const isEditSession = Boolean(editId);
 
-  const { register, handleSubmit ,reset, getValues, formState} = useForm({
-    defaultValues: isEditSession ? editValues : {}
-  }); 
+  const { register, handleSubmit, reset, getValues, formState } = useForm({
+    defaultValues: isEditSession ? editValues : {},
+  });
+  const { errors } = formState;
 
-  const {errors} = formState;
+  function onSubmit(data) {
+    const image = typeof data.image === "string" ? data.image : data.image[0];
 
-
-
-  function onSubmit(data){
-    const image = data.image instanceof File ? data.image : data.image[0];
-
-    if(isEditSession) 
-      editCabin({newCabinData:{...data, image},id:editId},{
-        onSuccess:(data)=> reset(), 
-      });
-    else createCabin({...data, image: image}),{
-      onSuccess:(data)=> reset(), 
-    }
+    if (isEditSession)
+      editCabin(
+        { newCabinData: { ...data, image }, id: editId },
+        {
+          onSuccess: (data) => {
+            reset();
+            onCloseModal?.();
+          },
+        }
+      );
+    else
+      createCabin(
+        { ...data, image: image },
+        {
+          onSuccess: (data) => {
+            reset();
+            onCloseModal?.();
+          },
+        }
+      );
   }
 
-  function onError(errors){
+  function onError(errors) {
+    // console.log(errors);
   }
+
   return (
-    <Form onSubmit={handleSubmit(onSubmit, onError)}>
-      <FormRow label="Cabin Name" error={errors?.name?.message}>
-        <Input type="text" id="name" disabled={isWorking}{...register ("name",{
-            required:"this field is requered",
-            min:{
-              value:1,
-              message:'capacity should be atleast 1',
-            }
-          })}/>
-      </FormRow>
-      <FormRow label="maxCapacity" error={errors?.maxCapacity?.message}>
-        <Input type="number" id="maxCapacity" disabled={isWorking} {...register ("maxCapacity",{
-          required:"this field is requered",
-          min:{
-            value:1,
-            message:'capacity should be atleast 1',
-          }
-        })}/>
+    <Form
+      onSubmit={handleSubmit(onSubmit, onError)}
+      type={onCloseModal ? "modal" : "regular"}
+    >
+      <FormRow label="Cabin name" error={errors?.name?.message}>
+        <Input
+          type="text"
+          id="name"
+          disabled={isWorking}
+          {...register("name", {
+            required: "This field is required",
+          })}
+        />
       </FormRow>
 
-      <FormRow label="regular price" error={errors?.regularPrice?.message}>
-        <Input type="number" id="regularPrice" disabled={isWorking}{...register ("regularPrice",{
-          required:"this field is requered",
-          min:{
-            value:1,
-            message:'capacity should be atleast 1',
-          }
-        })}/>
+      <FormRow label="Maximum capacity" error={errors?.maxCapacity?.message}>
+        <Input
+          type="number"
+          id="maxCapacity"
+          disabled={isWorking}
+          {...register("maxCapacity", {
+            required: "This field is required",
+            min: {
+              value: 1,
+              message: "Capacity should be at least 1",
+            },
+          })}
+        />
+      </FormRow>
+
+      <FormRow label="Regular price" error={errors?.regularPrice?.message}>
+        <Input
+          type="number"
+          id="regularPrice"
+          disabled={isWorking}
+          {...register("regularPrice", {
+            required: "This field is required",
+            min: {
+              value: 1,
+              message: "Capacity should be at least 1",
+            },
+          })}
+        />
       </FormRow>
 
       <FormRow label="Discount" error={errors?.discount?.message}>
-        <Input type="number" id="discount" defaultValue={0}  disabled={isWorking}{...register ("discount",{
-          required:"this field is requered",
-          validate:(value)=>
-            value <= getValues().regularPrice || "discount should be less then the regular price",
-        })}/>
+        <Input
+          type="number"
+          id="discount"
+          disabled={isWorking}
+          defaultValue={0}
+          {...register("discount", {
+            required: "This field is required",
+            validate: (value) =>
+              value <= getValues().regularPrice ||
+              "Discount should be less than regular price",
+          })}
+        />
       </FormRow>
 
-      <FormRow label="Description for website" error={errors?.description?.message}>
-        <Textarea type="number" id="description" defaultValue="" {...register ("description",{
-          required:"this field is requered"
-        })}/>
+      <FormRow
+        label="Description for website"
+        error={errors?.description?.message}
+      >
+        <Textarea
+          type="number"
+          id="description"
+          defaultValue=""
+          disabled={isWorking}
+          {...register("description", {
+            required: "This field is required",
+          })}
+        />
       </FormRow>
 
       <FormRow label="Cabin photo">
-        <FileInput id="image" accept="image/*" {...register ("image",{
-          required:isEditSession? false :"this field is required"
-        })} disabled={isWorking}/>
+        <FileInput
+          id="image"
+          accept="image/*"
+          {...register("image", {
+            required: isEditSession ? false : "This field is required",
+          })}
+        />
       </FormRow>
 
       <FormRow>
         {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
+        <Button
+          variation="secondary"
+          type="reset"
+          onClick={() => onCloseModal?.()}
+        >
           Cancel
         </Button>
-        <Button disabled={isWorking}>{isEditSession ? "Edit cabin" : "Create new cabin"}</Button>
+        <Button disabled={isWorking}>
+          {isEditSession ? "Edit cabin" : "Create new cabin"}
+        </Button>
       </FormRow>
     </Form>
   );
