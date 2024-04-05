@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import styled from "styled-components"
 import Logo from "./Logo"
+import Uploader from "../data/Uploader"
 import MainNav  from "./MainNav"
 import { useCabins } from "../features/cabins/useCabins"
 const StyledSideBar = styled.aside`
@@ -18,6 +19,7 @@ function SideBar() {
         <StyledSideBar>
             <Logo/>
             <MainNav/>
+            <Uploader/>
         </StyledSideBar>
     )
 }
