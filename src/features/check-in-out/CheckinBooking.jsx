@@ -14,6 +14,7 @@ import Spinner from "../../ui/Spinner";
 import CheckBox from "../../ui/Checkbox"
 import { formatCurrency } from "../../utils/helpers";
 import { useChecking } from "./useChecking";
+import { useSettings } from "../settings/useSettings";
 
 const Box = styled.div`
   /* Box */
@@ -25,15 +26,18 @@ const Box = styled.div`
 
 function CheckinBooking() {
   const [confirmedPaid, setConfirmedPaid] = useState(false);
+  const [addBreakfast, setAddBreakfast] = useState(false)
+
   const {booking, isLoading} = useBooking()
+  const {checkin, isCheckingIn} = useChecking()
+  const {settings, isLoading: isLoadingSettings} = useSettings()
 
   useEffect(()=> setConfirmedPaid(booking?.isPaid ?? false)
 ,[booking,setConfirmedPaid])
 
   const moveBack = useMoveBack();
-  const {checkin, isCheckingIn} = useChecking()
 
-if(isLoading) return <Spinner/>
+if(isLoading || isLoadingSettings) return <Spinner/>
   const {
     id: bookingId,
     guests,
@@ -43,10 +47,20 @@ if(isLoading) return <Spinner/>
     numNights,
   } = booking;
 
-  function handleCheckin() {
+const optionalBreakfastPrice= settings.breakfastPrice * numNights * numGuests;
+
+function handleCheckin() {
     if(!confirmedPaid)  return;
-    checkin(bookingId);
-  }
+
+    if(addBreakfast){
+      checkin({bookingId, breakfast:{
+        hasBreakfast: true,
+        extrasPrice : optionalBreakfastPrice,
+        totalPrice: totalPrice +optionalBreakfastPrice
+      }})
+    }
+    else checkin({bookingId, breakfast:{}});
+}
 
   return (
     <>
@@ -56,6 +70,19 @@ if(isLoading) return <Spinner/>
       </Row>
 
       <BookingDataBox booking={booking} />
+
+      {!hasBreakfast && <Box>
+        <CheckBox 
+          checked={addBreakfast}
+          onChange={()=>{
+            setAddBreakfast((add)=>!add);
+            setConfirmedPaid(false);
+          }}  
+          id='breakfast'
+        >
+          Want to Add Breakfast for {formatCurrency(optionalBreakfastPrice)}
+        </CheckBox>
+      </Box>}
       
       <Box> 
         <CheckBox 
@@ -63,7 +90,12 @@ if(isLoading) return <Spinner/>
           checked={confirmedPaid} 
           onChange={()=> setConfirmedPaid((confirm)=>!confirm)} 
           disabled={confirmedPaid || isCheckingIn}>
-            i confirm that {guests.fullName} has paid the full amount of{formatCurrency(totalPrice)}
+            i confirm that {guests.fullName} has paid the full amount of {" "} 
+            {!addBreakfast 
+              ? formatCurrency(totalPrice) 
+              : `${
+                  (formatCurrency(totalPrice + optionalBreakfastPrice))
+                } ( ${formatCurrency(totalPrice)}+${formatCurrency(optionalBreakfastPrice)} )`}
         </CheckBox>
       </Box>
 
