@@ -17,6 +17,8 @@ import AppLayout from "./ui/AppLayout.jsx"
 import Booking from './pages/Booking.jsx';
 import Checkin from './pages/Checkin.jsx';
 import ProtectedRoute from './ui/ProtectedRoute.jsx';
+import DarkModeToggle from './ui/DarkModeToggle.jsx';
+import { DarkModeProvider } from '../context/DarkModeContext.jsx';
 const  queryClient = new QueryClient({
   defaultOptions:{
     queries:{
@@ -26,6 +28,8 @@ const  queryClient = new QueryClient({
 });
 const App = () => {
   return (
+    <DarkModeProvider>
+
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false}/>
       <GlobalStyles/>
@@ -68,6 +72,8 @@ const App = () => {
         }
       }}/>
     </QueryClientProvider>
+    </DarkModeProvider>
+
   );
 }
 
